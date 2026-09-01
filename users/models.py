@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from interests.models import Interest
 
 class User(AbstractUser):
 
@@ -29,6 +29,8 @@ class User(AbstractUser):
     review_points = models.PositiveIntegerField(
         default=0
     )
+
+    interests = models.ManyToManyField(Interest, blank=True)
 
     def __str__(self):
         return self.name

@@ -1,10 +1,9 @@
 from django.db import models
-from interests.models import Interest
-from django.core.validators import MinValueValidator, MaxValueValidator
+
 
 
 # Create your models here.
-class Destination(models.Model):
+class Event(models.Model):
     name = models.CharField(max_length=100)
 
     description = models.TextField(
@@ -14,7 +13,7 @@ class Destination(models.Model):
     )
 
     image = models.ImageField(
-        upload_to='destinations/',
+        upload_to='events/',
         blank=True,
         null=True
     )
@@ -25,7 +24,7 @@ class Destination(models.Model):
         default=0.00
     )
 
-    interest = models.ForeignKey(Interest, on_delete=models.CASCADE)
+    interest = models.ManyToManyField('interests.Interest')
     longitude = models.DecimalField(
         max_digits=9,
         decimal_places=6,
@@ -39,6 +38,11 @@ class Destination(models.Model):
         null=True
     )
     city = models.CharField(default='Johannesburg', max_length=100, blank=True, null=True)
-    rating = models.DecimalField(max_digits =3, decimal_places = 2,validators=[MinValueValidator(0), MaxValueValidator(5)], default=0.00)
+    category = models.CharField(max_length=100, blank=True, null=True)
+    destination = models.ForeignKey('destinations.Destination', on_delete=models.CASCADE, blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    capacity = models.PositiveIntegerField(default=0)
+    
     def __str__(self):
         return self.name
