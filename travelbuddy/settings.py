@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'destinations',
     'interests',
     'events',
+    'recommendations',
     
 ]
 

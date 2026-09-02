@@ -43,6 +43,22 @@ class Event(models.Model):
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     capacity = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+            return self.name
+
+
+
+class Attendance(models.Model):
+    event = models.ForeignKey(
+        'events.Event',
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    date_of_attendance = models.DateTimeField(auto_now_add=True)
+    
+
+    
     
     def __str__(self):
-        return self.name
+        return f"{self.user} - {self.event}"
