@@ -53,6 +53,7 @@ class Attendance(models.Model):
     event = models.ForeignKey(
         'events.Event',
         on_delete=models.CASCADE
+    
     )
     user = models.ForeignKey('users.User', on_delete=models.CASCADE)
     date_of_attendance = models.DateTimeField(auto_now_add=True)

@@ -5,6 +5,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 class Destination(models.Model):
+   
     name = models.CharField(max_length=100)
 
     description = models.TextField(
@@ -22,7 +23,8 @@ class Destination(models.Model):
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        default=0.00
+        default=0.00,
+        validators= [MinValueValidator(0)]
     )
 
     interest = models.ForeignKey(Interest, on_delete=models.CASCADE)
