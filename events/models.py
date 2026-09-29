@@ -13,6 +13,12 @@ class Event(models.Model):
         null=True
     )
 
+    created_by = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name='events', null=True
+    )
+
     image = models.ImageField(
         upload_to='events/',
         blank=True,

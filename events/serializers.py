@@ -9,4 +9,5 @@ class EventSerializer(serializers.ModelSerializer):
 class attendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attendance
+        read_only_fields = ['created_by']
         fields = '__all__'

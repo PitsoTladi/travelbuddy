@@ -7,6 +7,9 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 class Destination(models.Model):
    
     name = models.CharField(max_length=100)
+    created_by = models.ForeignKey( 'users.User',
+        on_delete=models.CASCADE,
+        related_name='destinations', null=True)
 
     description = models.TextField(
         max_length=500,
@@ -44,3 +47,4 @@ class Destination(models.Model):
     rating = models.DecimalField(max_digits =3, decimal_places = 2,validators=[MinValueValidator(0), MaxValueValidator(5)], default=0.00)
     def __str__(self):
         return self.name
+        
