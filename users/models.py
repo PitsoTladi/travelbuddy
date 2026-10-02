@@ -7,7 +7,16 @@ class User(AbstractUser):
     name = models.CharField(max_length=100)
 
     email = models.EmailField(unique=True)
-
+    role = models.CharField(
+    max_length=30,
+    choices=[
+        ('adventure_seeker', 'Adventure Seeker'),
+        ('business_creator', 'Business Creator'),
+        ('event_creator', 'Event Creator'),
+    ],
+    default='adventure_seeker'
+    )
+    
     bio = models.TextField(
         max_length=120,
         blank=True,
