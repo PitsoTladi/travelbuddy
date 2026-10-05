@@ -20,7 +20,7 @@ class EventViewSet(viewsets.ModelViewSet):
 class AttendanceViewSet(viewsets.ModelViewSet):
     #queryset = Attendance.objects.all()
     serializer_class = AttendanceSerializer
-    permission_classes = [isEventCreaterOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Attendance.objects.filter(user=self.request.user)
