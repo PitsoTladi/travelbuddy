@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'interests',
     'events',
     'recommendations',
+    'posts',
+    'reviews',
     
 ]
 
