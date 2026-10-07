@@ -11,7 +11,14 @@ class DestinationViewSets(viewsets.ModelViewSet):
     serializer_class = DestinationSerializer
     permission_classes = [IsBusinessCreatorOwnerOrReadOnly]
 
+    filterset_fields = {
+        'city': ['exact'],
+        'price': ['exact','gte','lte'],
+        'rating':['exact','gte','lte'],
+         'interest': ['exact'],
+    }
 
+    search_fields = ['name','description']
 
     def perform_create(self, serializer):
         serializer.save(created_by = self.request.user)

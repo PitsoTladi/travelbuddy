@@ -12,6 +12,17 @@ class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
     permission_classes = [isEventCreaterOwnerOrReadOnly]
 
+    filterset_fields = {
+        'city': ['exact'],
+        'price': ['exact', 'gte', 'lte'],
+        'category': ['exact'],
+        'start_date': ['exact', 'gte', 'lte'],
+        'end_date': ['exact', 'gte', 'lte'],
+        'interest': ['exact'],
+    }
+
+    search_fields = ['name', 'description']
+
   
 
     def perform_create(self, serializer):

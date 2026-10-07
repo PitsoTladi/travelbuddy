@@ -14,6 +14,7 @@ class UsersSerializer(serializers.ModelSerializer):
             'budget',
             'review_points',
             'interests',
+            'role'
         ]
 
 
@@ -30,7 +31,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             'name',
             'email',
             'password',
-           
+           'role',
         ]
 
     def create(self, validated_data):
