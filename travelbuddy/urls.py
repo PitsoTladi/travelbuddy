@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/refresh',TokenRefreshView.as_view(), name='token_refresh'),
     path('api/register/', register, name='register' ),
     path('api/', include('posts.urls')),
-    path('api/', include('reviews.urls'))
+    path('api/', include('reviews.urls')),
+    path('api/', include('recommendations.urls')),
 ]
 

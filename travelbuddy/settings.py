@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'posts',
     'reviews',
     'django_filters',
+    'seeddata',
     
 ]
 
