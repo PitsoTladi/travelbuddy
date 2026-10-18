@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-
+from events.models import Event,Attendance
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
@@ -321,3 +321,169 @@ class EventFilteringTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
+
+
+class EventBookingTests(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='booker',
+            email='booker@test.com',
+            password='Password123!',
+            name='Booking User',
+            role='adventure_seeker'
+        )
+
+        self.other_user = User.objects.create_user(
+            username='otherbooker',
+            email='otherbooker@test.com',
+            password='Password123!',
+            name='Other Booking User',
+            role='adventure_seeker'
+        )
+
+        self.event = Event.objects.create(
+            name='Bookable Event',
+            price=100,
+            capacity=2,
+            city='Johannesburg'
+        )
+
+        self.url = reverse('attendance-list')
+        self.client.force_authenticate(user=self.user)
+
+    def test_user_can_book_event(self):
+        response = self.client.post(
+            self.url,
+            {'event': self.event.id},
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(
+            Attendance.objects.filter(
+                event=self.event,
+                user=self.user
+            ).exists()
+        )
+
+    def test_user_cannot_book_same_event_twice(self):
+        Attendance.objects.create(
+            event=self.event,
+            user=self.user
+        )
+
+        response = self.client.post(
+            self.url,
+            {'event': self.event.id},
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            Attendance.objects.filter(
+                event=self.event,
+                user=self.user
+            ).count(),
+            1
+        )
+
+    def test_event_with_zero_capacity_rejects_booking(self):
+        self.event.capacity = 0
+        self.event.save()
+
+        response = self.client.post(
+            self.url,
+            {'event': self.event.id},
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Attendance.objects.count(), 0)
+
+    def test_full_event_rejects_additional_booking(self):
+        self.event.capacity = 1
+        self.event.save()
+
+        Attendance.objects.create(
+            event=self.event,
+            user=self.other_user
+        )
+
+        response = self.client.post(
+            self.url,
+            {'event': self.event.id},
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Attendance.objects.count(), 1)
+
+    def test_user_can_only_view_own_bookings(self):
+        Attendance.objects.create(
+            event=self.event,
+            user=self.other_user
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+        Attendance.objects.create(
+            event=self.event,
+            user=self.user
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_user_can_cancel_own_booking(self):
+        booking = Attendance.objects.create(
+            event=self.event,
+            user=self.user
+        )
+
+        response = self.client.delete(
+            reverse('attendance-detail', kwargs={'pk': booking.pk})
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_204_NO_CONTENT
+        )
+        self.assertFalse(
+            Attendance.objects.filter(pk=booking.pk).exists()
+        )
+
+    def test_user_cannot_cancel_another_users_booking(self):
+        booking = Attendance.objects.create(
+            event=self.event,
+            user=self.other_user
+        )
+
+        response = self.client.delete(
+            reverse('attendance-detail', kwargs={'pk': booking.pk})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertTrue(Attendance.objects.filter(pk=booking.pk).exists())
+
+    def test_user_cannot_update_booking(self):
+        booking = Attendance.objects.create(
+            event=self.event,
+            user=self.user
+        )
+
+        response = self.client.patch(
+            reverse('attendance-detail', kwargs={'pk': booking.pk}),
+            {'event': self.event.id},
+            format='json'
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_405_METHOD_NOT_ALLOWED
+        )
