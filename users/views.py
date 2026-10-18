@@ -1,33 +1,32 @@
-from rest_framework import viewsets
-from .models import User
-from rest_framework.decorators import api_view
+
+from rest_framework import viewsets, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.permissions import AllowAny
+
 from .models import User
-from .serializers import UsersSerializer
+from .serializers import UsersSerializer, RegisterSerializer
 
 
-
-# Create your views here.
-
-
-class userViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
 
-@api_view(['POST'])
-def register(request):
-    serializer = RegisterSerializer(data=request.data)
 
-    if serializer.is_valid():
-        user =serializer.save()
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
 
-        return Response({
-            'message': 'user successfuly registered'
-        },
-        status= status.HTTP_201_CREATED)
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
 
-    return Response(
-        serializer.errors,
-        status = status.HTTP_400_BAD_REQUEST
-    )
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(
+                UsersSerializer(user).data,
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )

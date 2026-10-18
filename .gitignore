@@ -1,22 +1,14 @@
-# Virtual environment
-venv/
-.venv/
-
-# Python cache
+@'
+# Python
 __pycache__/
 *.py[cod]
-
-# Django
-db.sqlite3
-
-# Environment variables
-.env
-.env.*
-
-# IDE
-.vscode/
-.idea/
+venv/
+.venv/
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# Local database
+db.sqlite3
+'@ | Set-Content .gitignore
