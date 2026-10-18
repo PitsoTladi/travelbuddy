@@ -9,8 +9,10 @@ from .serializers import UsersSerializer, RegisterSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
     serializer_class = UsersSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(pk=self.request.user.pk)
 
 
 class RegisterView(APIView):

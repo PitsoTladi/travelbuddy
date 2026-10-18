@@ -96,3 +96,49 @@ class RegistrationTests(APITestCase):
         }, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class UserProfileSecurityTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="profileuser",
+            name="Profile User",
+            email="profile@example.com",
+            password="SecurePass123!",
+            role="adventure_seeker",
+        )
+        self.other_user = User.objects.create_user(
+            username="otheruser",
+            name="Other User",
+            email="other@example.com",
+            password="SecurePass123!",
+        )
+        self.client.force_authenticate(user=self.user)
+
+    def test_user_cannot_retrieve_another_profile(self):
+        response = self.client.get(
+            f"/api/users/{self.other_user.pk}/"
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_cannot_change_own_role_or_review_points(self):
+        response = self.client.patch(
+            f"/api/users/{self.user.pk}/",
+            {
+                "role": "business_creator",
+                "review_points": 9999,
+                "bio": "Updated bio",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.role, "adventure_seeker")
+        self.assertEqual(self.user.review_points, 0)
+        self.assertEqual(self.user.bio, "Updated bio")
+
+    def test_user_list_only_contains_own_profile(self):
+        response = self.client.get("/api/users/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["username"], "profileuser")

@@ -14,7 +14,12 @@ class UsersSerializer(serializers.ModelSerializer):
             'budget',
             'review_points',
             'interests',
-            'role'
+            'role',
+        ]
+        read_only_fields = [
+            'username',
+            'review_points',
+            'role',
         ]
 
 
