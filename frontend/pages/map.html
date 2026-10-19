@@ -55,33 +55,69 @@
         <section class="map-panel" aria-label="Explore destinations and events">
             <div class="map-toolbar">
                 <div class="filter-group" aria-label="Filter map locations">
-                    <button class="filter-button active" data-filter="all" aria-pressed="true">
+                    <button
+                        class="filter-button active"
+                        data-filter="all"
+                        aria-pressed="true"
+                        type="button"
+                    >
                         All locations
                     </button>
-                    <button class="filter-button" data-filter="destination" aria-pressed="false">
+
+                    <button
+                        class="filter-button"
+                        data-filter="destination"
+                        aria-pressed="false"
+                        type="button"
+                    >
                         <span class="legend-dot destination-dot"></span>
                         Destinations
                     </button>
-                    <button class="filter-button" data-filter="event" aria-pressed="false">
+
+                    <button
+                        class="filter-button"
+                        data-filter="event"
+                        aria-pressed="false"
+                        type="button"
+                    >
                         <span class="legend-dot event-dot"></span>
                         Events
                     </button>
                 </div>
 
-                <button id="reset-map" class="reset-button" type="button">
-                    Reset view
-                </button>
+                <div class="map-actions">
+                    <button id="near-me" class="reset-button" type="button">
+                        Find near me
+                    </button>
+
+                    <button id="reset-map" class="reset-button" type="button">
+                        Reset view
+                    </button>
+                </div>
+            </div>
+
+            <div
+                id="nearby-status"
+                class="map-status"
+                role="status"
+                aria-live="polite"
+            >
+                Select "Find near me" to discover places within 30 km.
             </div>
 
             <div id="map-status" class="map-status" role="status" aria-live="polite">
-                Loading destinations and events…
+                Loading destinations and events...
             </div>
 
-            <div id="map" aria-label="Interactive map showing destinations and events"></div>
+            <div
+                id="map"
+                aria-label="Interactive map showing destinations and events"
+            ></div>
 
             <p class="map-note">
                 Map data is provided by OpenStreetMap. Location markers appear
-                only when coordinates are available.
+                only when coordinates are available. Nearby search uses your
+                device location only after you grant permission.
             </p>
         </section>
     </main>
