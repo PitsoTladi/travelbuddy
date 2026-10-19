@@ -1,6 +1,8 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
+from events.models import Event
+from interests.models import Interest
 
 from users.models import User
 from interests.models import Interest
@@ -382,3 +384,105 @@ class DestinationFilteringTests(APITestCase):
 
         for destination in response.data:
             self.assertEqual(destination['interest'], adventure.id)
+
+
+class MapLocationsAPITests(APITestCase):
+    def setUp(self):
+        self.url = reverse("map-locations")
+        self.interest = Interest.objects.create(name="Adventure")
+
+        self.destination = Destination.objects.create(
+            name="Magaliesburg",
+            description="A destination with coordinates",
+            price=150,
+            interest=self.interest,
+            city="Johannesburg",
+            latitude=-25.936700,
+            longitude=27.906600,
+        )
+
+        self.event = Event.objects.create(
+            name="Adventure Festival",
+            description="An event with coordinates",
+            price=100,
+            city="Johannesburg",
+            latitude=-26.204100,
+            longitude=28.047300,
+        )
+        self.event.interest.add(self.interest)
+
+    def test_endpoint_is_public(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_returns_destination_with_coordinates(self):
+        response = self.client.get(self.url)
+
+        destination = next(
+            item for item in response.data
+            if item["id"] == self.destination.id
+            and item["type"] == "destination"
+        )
+
+        self.assertEqual(destination["name"], "Magaliesburg")
+        self.assertEqual(str(destination["latitude"]), "-25.936700")
+        self.assertEqual(str(destination["longitude"]), "27.906600")
+
+    def test_returns_event_with_coordinates(self):
+        response = self.client.get(self.url)
+
+        event = next(
+            item for item in response.data
+            if item["id"] == self.event.id
+            and item["type"] == "event"
+        )
+
+        self.assertEqual(event["name"], "Adventure Festival")
+
+    def test_excludes_destination_missing_latitude(self):
+        Destination.objects.create(
+            name="Missing Latitude",
+            price=0,
+            interest=self.interest,
+            latitude=None,
+            longitude=27.906600,
+        )
+
+        response = self.client.get(self.url)
+
+        names = [item["name"] for item in response.data]
+        self.assertNotIn("Missing Latitude", names)
+
+    def test_excludes_event_missing_longitude(self):
+        event = Event.objects.create(
+            name="Missing Longitude",
+            price=0,
+            latitude=-26.204100,
+            longitude=None,
+        )
+        event.interest.add(self.interest)
+
+        response = self.client.get(self.url)
+
+        names = [item["name"] for item in response.data]
+        self.assertNotIn("Missing Longitude", names)
+
+    def test_each_result_has_required_fields(self):
+        response = self.client.get(self.url)
+
+        self.assertTrue(response.data)
+
+        required_fields = {
+            "id",
+            "name",
+            "type",
+            "latitude",
+            "longitude",
+            "city",
+            "description",
+            "price",
+        }
+
+        for location in response.data:
+            self.assertEqual(set(location.keys()), required_fields)
