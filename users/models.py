@@ -5,7 +5,12 @@ from interests.models import Interest
 class User(AbstractUser):
 
     name = models.CharField(max_length=100)
-
+    google_sub = models.CharField(
+    max_length=255,
+    unique=True,
+    null=True,
+    blank=True,
+    )
     email = models.EmailField(unique=True)
     role = models.CharField(
     max_length=30,
