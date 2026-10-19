@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'reviews',
     'django_filters',
     'seeddata',
+    'chatbot',
     
 ]
 
