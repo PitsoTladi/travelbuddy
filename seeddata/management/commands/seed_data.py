@@ -115,26 +115,31 @@ class Command(BaseCommand):
         # DESTINATIONS
         # ==========================================================
 
+        
+        # ==========================================================
+        # DESTINATIONS
+        # ==========================================================
+
         destinations_data = [
-            ('Gold Reef City', 'Johannesburg', 450, 4.5, 'Adventure'),
-            ('Zoo Lake', 'Johannesburg', 0, 4.0, 'Nature'),
-            ('Maboneng Precinct', 'Johannesburg', 200, 4.3, 'Art'),
-            ('Soweto Tour', 'Johannesburg', 350, 4.7, 'Adventure'),
-            ('Montecasino', 'Johannesburg', 300, 4.2, 'Nightlife'),
-            ('Melville', 'Johannesburg', 150, 4.1, 'Food'),
-            ('Cradle of Humankind', 'Johannesburg', 500, 4.8, 'Nature'),
-            ('Apartheid Museum', 'Johannesburg', 180, 4.6, 'Art'),
-            ('Voortrekker Monument', 'Pretoria', 120, 4.4, 'Art'),
-            ('Durban Beachfront', 'Durban', 0, 4.5, 'Nature'),
-            ('Cape Point', 'Cape Town', 600, 4.9, 'Adventure'),
-            ('Gold Reef Motoring Experience', 'Johannesburg', 400, 4.3, 'Motoring'),
+            ('Gold Reef City', 'Johannesburg', 450, 4.5, 'Adventure', -26.2350, 28.0090),
+            ('Zoo Lake', 'Johannesburg', 0, 4.0, 'Nature', -26.1530, 28.0340),
+            ('Maboneng Precinct', 'Johannesburg', 200, 4.3, 'Art', -26.2040, 28.0600),
+            ('Soweto Tour', 'Johannesburg', 350, 4.7, 'Adventure', -26.2485, 27.8540),
+            ('Montecasino', 'Johannesburg', 300, 4.2, 'Nightlife', -25.9950, 28.0100),
+            ('Melville', 'Johannesburg', 150, 4.1, 'Food', -26.1730, 28.0110),
+            ('Cradle of Humankind', 'Johannesburg', 500, 4.8, 'Nature', -25.9367, 27.9066),
+            ('Apartheid Museum', 'Johannesburg', 180, 4.6, 'Art', -26.2380, 28.0090),
+            ('Voortrekker Monument', 'Pretoria', 120, 4.4, 'Art', -25.7760, 28.1750),
+            ('Durban Beachfront', 'Durban', 0, 4.5, 'Nature', -29.8587, 31.0218),
+            ('Cape Point', 'Cape Town', 600, 4.9, 'Adventure', -34.3568, 18.4970),
+            ('Gold Reef Motoring Experience', 'Johannesburg', 400, 4.3, 'Motoring', -26.2350, 28.0090),
         ]
 
         destinations = []
 
-        for name, city, price, rating, interest_name in destinations_data:
+        for name, city, price, rating, interest_name, latitude, longitude in destinations_data:
 
-            destination, created = Destination.objects.get_or_create(
+            destination, created = Destination.objects.update_or_create(
                 name=name,
                 defaults={
                     'description': f'Explore {name} with TravelBuddySA.',
@@ -143,15 +148,19 @@ class Command(BaseCommand):
                     'city': city,
                     'interest': interests[interest_name],
                     'created_by': users['seed_business'],
+                    'latitude': latitude,
+                    'longitude': longitude,
                 }
             )
 
             destinations.append(destination)
 
         self.stdout.write(
-            self.style.SUCCESS('✓ Destinations created')
+            self.style.SUCCESS('✓ Destinations created/updated')
         )
 
+
+       
         # ==========================================================
         # EVENTS
         # ==========================================================
@@ -159,26 +168,26 @@ class Command(BaseCommand):
         today = date.today()
 
         events_data = [
-            ('Joburg Jazz Night', 'Music', 'Johannesburg', 300, 30),
-            ('Johannesburg Food Festival', 'Food', 'Johannesburg', 250, 45),
-            ('Joburg Adventure Run', 'Sports', 'Johannesburg', 150, 60),
-            ('Cars & Coffee Joburg', 'Motoring', 'Johannesburg', 100, 75),
-            ('Night Market Maboneng', 'Nightlife', 'Johannesburg', 80, 90),
-            ('Pretoria Art Festival', 'Art', 'Pretoria', 200, 30),
-            ('Durban Beach Festival', 'Nature', 'Durban', 350, 50),
-            ('Cape Town Adventure Expo', 'Adventure', 'Cape Town', 500, 70),
-            ('Johannesburg Music Festival', 'Music', 'Johannesburg', 400, 100),
-            ('Soweto Cultural Festival', 'Art', 'Johannesburg', 180, 120),
+            ('Joburg Jazz Night', 'Music', 'Johannesburg', 300, 30, -26.2041, 28.0473),
+            ('Johannesburg Food Festival', 'Food', 'Johannesburg', 250, 45, -26.1950, 28.0340),
+            ('Joburg Adventure Run', 'Sports', 'Johannesburg', 150, 60, -26.1367, 28.0760),
+            ('Cars & Coffee Joburg', 'Motoring', 'Johannesburg', 100, 75, -26.1070, 28.0560),
+            ('Night Market Maboneng', 'Nightlife', 'Johannesburg', 80, 90, -26.2040, 28.0600),
+            ('Pretoria Art Festival', 'Art', 'Pretoria', 200, 30, -25.7479, 28.2293),
+            ('Durban Beach Festival', 'Nature', 'Durban', 350, 50, -29.8587, 31.0218),
+            ('Cape Town Adventure Expo', 'Adventure', 'Cape Town', 500, 70, -33.9249, 18.4241),
+            ('Johannesburg Music Festival', 'Music', 'Johannesburg', 400, 100, -26.2041, 28.0473),
+            ('Soweto Cultural Festival', 'Art', 'Johannesburg', 180, 120, -26.2485, 27.8540),
         ]
 
         events = []
 
-        for name, category, city, price, days_from_now in events_data:
+        for name, category, city, price, days_from_now, latitude, longitude in events_data:
 
             start_date = today + timedelta(days=days_from_now)
             end_date = start_date + timedelta(days=1)
 
-            event, created = Event.objects.get_or_create(
+            event, created = Event.objects.update_or_create(
                 name=name,
                 defaults={
                     'description': f'Experience {name} with TravelBuddySA.',
@@ -190,6 +199,8 @@ class Command(BaseCommand):
                     'end_date': end_date,
                     'capacity': 500,
                     'created_by': users['seed_event'],
+                    'latitude': latitude,
+                    'longitude': longitude,
                 }
             )
 
@@ -197,8 +208,9 @@ class Command(BaseCommand):
             events.append(event)
 
         self.stdout.write(
-            self.style.SUCCESS('✓ Events created')
+            self.style.SUCCESS('✓ Events created/updated')
         )
+
 
         # ==========================================================
         # ATTENDANCE

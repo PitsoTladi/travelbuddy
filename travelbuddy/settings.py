@@ -49,13 +49,16 @@ INSTALLED_APPS = [
     'django_filters',
     'seeddata',
     'chatbot',
+    'corsheaders',
     'map.apps.MapConfig',
     
 ]
 
 AUTH_USER_MODEL = 'users.User'
 MIDDLEWARE = [
+
     'django.middleware.security.SecurityMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -136,6 +139,9 @@ GOOGLE_OAUTH_CLIENT_ID = os.environ.get(
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5500",
+]
 
 LANGUAGE_CODE = 'en-us'
 
