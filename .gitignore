@@ -12,4 +12,6 @@ Thumbs.db
 
 # Local database
 db.sqlite3
+
+demo_user_credentials.csv
 '@ | Set-Content .gitignore
