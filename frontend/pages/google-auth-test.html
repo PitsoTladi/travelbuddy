@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TravelBuddySA - Google Login Test</title>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 8px 30px #0001;
+    }
+
+    h1 {
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #64748b;
+    }
+
+    #profile {
+      display: none;
+      margin-top: 24px;
+    }
+
+    #profile img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: 0;
+      border-radius: 8px;
+      background: #dc2626;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>TravelBuddySA</h1>
+    <p>Google Authentication Test</p>
+
+    <div id="g_id_onload"
+      data-client_id= "672751681844-clrdvdhcp3dtsofjmme5tl8q2jnaf49b.apps.googleusercontent.com"
+      data-callback="handleCredentialResponse"
+      data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+      data-type="standard"
+      data-size="large"
+      data-theme="outline"
+      data-text="signin_with"
+      data-shape="rectangular"
+      data-logo_alignment="left">
+    </div>
+
+    <div id="status">Sign in with Google to test your credentials.</div>
+
+    <div id="profile">
+      <img id="avatar" alt="Profile picture">
+      <h2 id="name"></h2>
+      <p id="email"></p>
+      <button onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+
+  <script>
+    function handleCredentialResponse(response) {
+      // Decode the ID token payload for this local UI test.
+      const payload = JSON.parse(
+        atob(response.credential.split('.')[1]
+          .replace(/-/g, '+').replace(/_/g, '/'))
+      );
+
+      document.getElementById('avatar').src = payload.picture;
+      document.getElementById('name').textContent = payload.name;
+      document.getElementById('email').textContent = payload.email;
+
+      document.getElementById('profile').style.display = 'block';
+      document.getElementById('status').textContent =
+        'Google sign-in successful!';
+    }
+
+    function signOut() {
+      google.accounts.id.disableAutoSelect();
+
+      document.getElementById('profile').style.display = 'none';
+      document.getElementById('status').textContent =
+        'Signed out. You can sign in again.';
+    }
+  </script>
+</body>
+</html>
