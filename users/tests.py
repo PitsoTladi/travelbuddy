@@ -2,6 +2,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
+from unittest.mock import patch
+
+from django.test import override_settings
 
 User = get_user_model()
 
@@ -142,3 +145,112 @@ class UserProfileSecurityTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["username"], "profileuser")
+
+
+class GoogleLoginTests(APITestCase):
+    url = "/api/auth/google/"
+
+    def setUp(self):
+        self.client_id_override = override_settings(
+            GOOGLE_OAUTH_CLIENT_ID="test-google-client-id"
+        )
+        self.client_id_override.enable()
+        self.addCleanup(self.client_id_override.disable)
+
+    def test_missing_credential_is_rejected(self):
+        response = self.client.post(
+            self.url, {}, format="json"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+
+    @patch("users.views.id_token.verify_oauth2_token")
+    def test_invalid_google_token_is_rejected(self, mock_verify):
+        mock_verify.side_effect = ValueError("Invalid token")
+
+        response = self.client.post(
+            self.url,
+            {"credential": "invalid-token"},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+        )
+        self.assertFalse(User.objects.exists())
+
+    @patch("users.views.id_token.verify_oauth2_token")
+    def test_verified_google_user_receives_jwt_tokens(
+        self, mock_verify
+    ):
+        mock_verify.return_value = {
+            "sub": "google-sub-123",
+            "email": "googleuser@example.com",
+            "email_verified": True,
+            "name": "Google Test User",
+        }
+
+        response = self.client.post(
+            self.url,
+            {"credential": "mock-valid-token"},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
+        self.assertIn("user", response.data)
+
+        user = User.objects.get(
+            email="googleuser@example.com"
+        )
+        self.assertEqual(user.google_sub, "google-sub-123")
+        self.assertEqual(user.name, "Google Test User")
+        self.assertEqual(user.role, "adventure_seeker")
+        self.assertFalse(user.has_usable_password())
+
+        mock_verify.assert_called_once()
+        self.assertEqual(
+            mock_verify.call_args.kwargs["audience"],
+            "test-google-client-id",
+        )
+
+    @patch("users.views.id_token.verify_oauth2_token")
+    def test_existing_email_is_not_automatically_linked(
+        self, mock_verify
+    ):
+        existing_user = User.objects.create_user(
+            username="existinggoogle",
+            name="Existing User",
+            email="existinggoogle@example.com",
+            password="SecurePass123!",
+        )
+
+        mock_verify.return_value = {
+            "sub": "different-google-sub",
+            "email": "existinggoogle@example.com",
+            "email_verified": True,
+            "name": "Existing Google User",
+        }
+
+        response = self.client.post(
+            self.url,
+            {"credential": "mock-valid-token"},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_409_CONFLICT,
+        )
+
+        existing_user.refresh_from_db()
+        self.assertIsNone(existing_user.google_sub)
+        self.assertEqual(User.objects.count(), 1)

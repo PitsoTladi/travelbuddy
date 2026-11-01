@@ -7,6 +7,11 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 class Destination(models.Model):
    
     name = models.CharField(max_length=100)
+    address = models.CharField(
+    max_length=255,
+    blank=True,
+    default=''
+   )
     created_by = models.ForeignKey( 'users.User',
         on_delete=models.CASCADE,
         related_name='destinations', null=True)

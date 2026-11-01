@@ -16,7 +16,7 @@ class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     permission_classes = [isEventCreaterOwnerOrReadOnly]
-
+    
     filterset_fields = {
         'city': ['exact'],
         'price': ['exact', 'gte', 'lte'],

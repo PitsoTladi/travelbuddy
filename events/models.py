@@ -7,6 +7,12 @@ from django.core.validators import MinValueValidator
 class Event(models.Model):
     name = models.CharField(max_length=100)
 
+    address = models.CharField(
+    max_length=255,
+    blank=True,
+    default=''
+    )
+
     description = models.TextField(
         max_length=500,
         blank=True,

@@ -18,6 +18,7 @@ urlpatterns = [
 
     # Application endpoints
     path('api/', include('destinations.urls')),
+    path('api/', include('map.urls')),
     path('api/', include('events.urls')),
     path('api/', include('interests.urls')),
     path('api/', include('posts.urls')),
