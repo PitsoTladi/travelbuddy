@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Destination | TravelBuddySA</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 0 18px;
+      color: #222;
+    }
+
+    form {
+      display: grid;
+      gap: 10px;
+    }
+
+    input, textarea, select, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 10px;
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    #address-results button {
+      margin: 5px 0;
+      text-align: left;
+    }
+
+    #message {
+      white-space: pre-wrap;
+    }
+
+    .selected {
+      border: 2px solid #26834a;
+      padding: 10px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Add a Destination</h1>
+  <p>Enter the destination details and select a verified address.</p>
+
+  <form id="destination-form">
+    <label for="name">Destination name *</label>
+    <input id="name" name="name" maxlength="100" required>
+
+    <label for="description">Description</label>
+    <textarea id="description" name="description" maxlength="500" rows="4"></textarea>
+
+    <label for="price">Price (ZAR)</label>
+    <input id="price" name="price" type="number" min="0" step="0.01" value="0" required>
+
+    <label for="city">City</label>
+    <input id="city" name="city" maxlength="100" value="Johannesburg">
+
+    <label for="interest">Interest *</label>
+    <select id="interest" name="interest" required>
+      <option value="">Loading interests...</option>
+    </select>
+
+    <hr>
+
+    <label for="address-query">Search address in South Africa *</label>
+    <input id="address-query" maxlength="255"
+           placeholder="e.g. Constitution Hill, Johannesburg">
+    <button type="button" id="search-address">Search address</button>
+
+    <div id="address-results" aria-live="polite"></div>
+    <div id="selected-address" class="selected" hidden></div>
+
+    <button type="submit" id="submit-destination">Save destination</button>
+  </form>
+
+  <p id="message" role="status" aria-live="polite"></p>
+
+  
+  <script src="../js/destination-create.js"></script>
+</body>
+</html>

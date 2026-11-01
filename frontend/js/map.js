@@ -3,6 +3,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     const API_URL = "http://127.0.0.1:8000/api/map/locations/";
+    const BOOKING_API_URL = "http://127.0.0.1:8000/api/bookings/";
     const RADIUS_METRES = 30000;
     const EARTH_RADIUS_KM = 6371;
 
@@ -163,38 +164,55 @@ document.addEventListener("DOMContentLoaded", () => {
             Math.atan2(Math.sqrt(boundedA), Math.sqrt(1 - boundedA));
     }
 
-    function createPopup(location) {
-        const typeLabel =
-            location.type === "event" ? "Event" : "Destination";
+    
+function createPopup(location) {
+    const isEvent = location.type === "event";
 
-        const typeClass = location.type === "event" ? "event" : "";
+    const typeLabel = isEvent ? "Event" : "Destination";
+    const typeClass = isEvent ? "event" : "";
 
-        const description = location.description
-            ? `<p class="popup-description">${escapeHTML(location.description)}</p>`
-            : "";
+    const description = location.description
+        ? `<p class="popup-description">${escapeHTML(location.description)}</p>`
+        : "";
 
-        const city = location.city
-            ? `<p class="popup-meta">${escapeHTML(location.city)}</p>`
-            : "";
+    const city = location.city
+        ? `<p class="popup-meta">${escapeHTML(location.city)}</p>`
+        : "";
 
-        const distance = nearbyMode && userLocation
-            ? `<p class="popup-meta"><strong>${distanceInKm(
-                userLocation,
-                [Number(location.latitude), Number(location.longitude)]
-            ).toFixed(1)} km away</strong></p>`
-            : "";
+    const distance = nearbyMode && userLocation
+        ? `<p class="popup-meta"><strong>${distanceInKm(
+            userLocation,
+            [Number(location.latitude), Number(location.longitude)]
+        ).toFixed(1)} km away</strong></p>`
+        : "";
 
-        return `
-            <div class="map-popup">
-                <p class="popup-type ${typeClass}">${typeLabel}</p>
-                <h3 class="popup-title">${escapeHTML(location.name)}</h3>
-                ${description}
-                ${city}
-                ${distance}
-                <p class="popup-meta">${escapeHTML(formatPrice(location.price))}</p>
-            </div>
-        `;
-    }
+    const bookingButton = isEvent && location.id != null
+        ? `
+            <button
+                type="button"
+                class="book-event-button"
+                data-event-id="${escapeHTML(location.id)}"
+            >
+                Book Event
+            </button>
+        `
+        : "";
+
+    return `
+        <div class="map-popup">
+            <p class="popup-type ${typeClass}">${typeLabel}</p>
+            <h3 class="popup-title">${escapeHTML(location.name)}</h3>
+            ${description}
+            ${city}
+            ${distance}
+            <p class="popup-meta">
+                ${escapeHTML(formatPrice(location.price))}
+            </p>
+            ${bookingButton}
+        </div>
+    `;
+}
+
 
     function createMarker(location) {
         const coordinates = [
