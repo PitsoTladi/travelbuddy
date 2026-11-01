@@ -78,29 +78,6 @@ class MapLocationsView(generics.GenericAPIView):
         serializer = self.get_serializer(locations, many=True)
         return Response(serializer.data)
 
-
-        events = Event.objects.exclude(
-            latitude__isnull=True
-        ).exclude(
-            longitude__isnull=True
-        )
-
-        for event in events:
-            locations.append({
-                "id": event.id,
-                "name": event.name,
-                "type": "event",
-                "latitude": event.latitude,
-                "longitude": event.longitude,
-                "city": event.city,
-                "description": event.description or "",
-                "price": event.price,
-            })
-
-        serializer = self.get_serializer(locations, many=True)
-        return Response(serializer.data)
-
-
 class AddressSearchView(APIView):
     permission_classes = [IsAuthenticated]
 
